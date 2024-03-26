@@ -1,25 +1,46 @@
 const mysql = require('mysql2');
 
-const con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "2424",
-    database: "HADASSIM_EX1",
-  });
+const sqlPassword = "2424";
+const dbName= "HADASSIM_EX1"
 
-  con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-    var patients_table = "CREATE TABLE patients (id INT AUTO_INCREMENT PRIMARY KEY, first_name VARCHAR(255), last_name VARCHAR(255), identity_card VARCHAR(20), address_city VARCHAR(255), address_street VARCHAR(255), address_number VARCHAR(10), date_of_birth DATE, telephone VARCHAR(15), mobile_phone VARCHAR(15))";
+function sqlConnect(query, values = []) {
+    return new Promise((resolve, reject) => {
+      const connection = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: sqlPassword,
+        database: dbName,
+      });
   
-    // var volumes_table_sql = "CREATE TABLE volumes (volume_id INT AUTO_INCREMENT PRIMARY KEY, tool_code INT, owner_code INT, deleted BINARY, availability BINARY)";
-    // var tools_borrowed_table_sql = "CREATE TABLE tools_borrowed (id INT AUTO_INCREMENT PRIMARY KEY, user_code INT, request_id INT, request_date DATE, confirmation_date DATE, return_date DATE, volume_code INT , deleted BINARY)";
-    // var tools_category_sql = "CREATE TABLE tools_category (id INT AUTO_INCREMENT PRIMARY KEY, tool_id INT, category_id INT)";
-    // var categories_table_sql = "CREATE TABLE categories (id INT AUTO_INCREMENT PRIMARY KEY, category_name VARCHAR(255))";
-
-    con.query(patients_table, function (err, result) {
-      if (err) throw err;
-      console.log("Table patients altered");
+      connection.connect((err) => {
+        if (err) {
+          console.error("Error connecting to MySQL server: " + err.stack);
+          reject(err);
+          return;
+        }
+        console.log("Connected to MySQL server");
+  
+        connection.query(query, values, (err, results) => {
+          if (err) {
+            console.error("Error executing query: " + err.code);
+            reject(err);
+          }
+  
+          connection.end((err) => {
+            if (err) {
+              console.error("Error closing connection: " + err.stack);
+              // reject(err);
+              return;
+            }
+            console.log("MySQL connection closed");
+          });
+  
+          resolve(results);
+        });
+      });
     });
+ }
+  
+module.exports ={dbName,sqlConnect};
 
-  });
+ 
