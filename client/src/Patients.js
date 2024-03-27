@@ -10,14 +10,16 @@ function Patients({ onSelect }) {
   // Function to fetch patients from the backend API
   const fetchPatients = async () => {
     try {
+      console.log("Fetching patients...");
       const response = await fetch("http://localhost:3000/patients");
       if (!response.ok) {
         throw new Error("Failed to fetch patients");
       }
       const data = await response.json();
+      console.log("Fetched patients data:", data);
       setPatients(data);
     } catch (error) {
-      console.error(error);
+      console.error("Fetch patients error:", error);
     }
   };
 

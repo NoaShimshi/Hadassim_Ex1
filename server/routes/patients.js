@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get("/", function (req, res) {
     console.log('Fetching patients');
-    
+
     const query = `SELECT id, first_name, last_name, identity_card FROM ${dbName}.patients`;
     
     sqlConnect(query)
@@ -37,6 +37,8 @@ router.get("/", function (req, res) {
   });
   
   router.post("/", function (req, res) {
+    console.log('Addind new patient');
+
     const { first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone } = req.body;
     
     const query = `INSERT INTO ${dbName}.patients (first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone) 
