@@ -17,10 +17,9 @@ function Patients({ onSelect }) {
       }
       const data = await response.json();
       console.log("Fetched patients data:", data);
-      setPatients(data);
-
-      // Save fetched patients to local storage
+      
       localStorage.setItem("patients", JSON.stringify(data));
+      setPatients(data);
     } catch (error) {
       console.error("Fetch patients error:", error);
     }
@@ -28,24 +27,25 @@ function Patients({ onSelect }) {
 
   // Function to handle adding a new patient
   const handleAddPatient = async (patientData) => {
-    try {
-      const response = await fetch("http://localhost:3000/patients/newPatient", {
+    console.log(patientData);
+    const url = "http://localhost:3000/patients/newPatient";
+    const req = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(patientData),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add patient");
-      }
-      // Refresh patients list
-      fetchPatients();
-      // Close the modal or form
-      setShowModal(false);
-    } catch (error) {
-      console.error(error);
-    }
+    };
+
+    await fetch(url, req)
+        .then((res) => {
+            console.log(res);
+            fetchPatients();
+            setShowModal(false);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
   };
 
   // Effect to fetch patients data when the component mounts
