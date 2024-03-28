@@ -18,6 +18,9 @@ function Patients({ onSelect }) {
       const data = await response.json();
       console.log("Fetched patients data:", data);
       setPatients(data);
+
+      // Save fetched patients to local storage
+      localStorage.setItem("patients", JSON.stringify(data));
     } catch (error) {
       console.error("Fetch patients error:", error);
     }
@@ -26,7 +29,7 @@ function Patients({ onSelect }) {
   // Function to handle adding a new patient
   const handleAddPatient = async (patientData) => {
     try {
-      const response = await fetch("http://localhost:3000/patients", {
+      const response = await fetch("http://localhost:3000/patients/newPatient", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +50,13 @@ function Patients({ onSelect }) {
 
   // Effect to fetch patients data when the component mounts
   useEffect(() => {
-    fetchPatients();
+    // Check if patient data is available in local storage
+    const storedPatients = localStorage.getItem("patients");
+    if (storedPatients) {
+      setPatients(JSON.parse(storedPatients));
+    } else {
+      fetchPatients();
+    }
   }, []); // Empty dependency array ensures the effect runs only once on mount
 
   return (

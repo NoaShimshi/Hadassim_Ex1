@@ -7,8 +7,10 @@ router.get("/", function (req, res) {
 
     const query = `SELECT id, first_name, last_name, identity_card FROM ${dbName}.patients`;
     
+    console.log(query);
     sqlConnect(query)
       .then((results) => {
+        console.log(results);
         res.status(200).json(results);
       })
       .catch((err) => {
@@ -36,7 +38,7 @@ router.get("/", function (req, res) {
       });
   });
   
-  router.post("/", function (req, res) {
+  router.post("/newPatient", function (req, res) {
     console.log('Addind new patient');
 
     const { first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone } = req.body;
@@ -46,6 +48,7 @@ router.get("/", function (req, res) {
     
     const values = [first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone];
     
+    console.log(query);
     sqlConnect(query, values)
       .then(() => {
         res.status(201).send("Patient added successfully");
