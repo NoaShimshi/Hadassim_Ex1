@@ -119,4 +119,39 @@ router.post("/newPatient", function (req, res) {
       });
 });
 
+router.put("/:id", function (req, res) {
+  const patientId = req.params.id;
+  const { first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone } = req.body;
+  
+  const query = `UPDATE ${dbName}.patients 
+                 SET first_name = ?, last_name = ?, identity_card = ?, address_city = ?, address_street = ?, address_number = ?, date_of_birth = ?, telephone = ?, mobile_phone = ?
+                 WHERE id = ?`;
+  
+  const values = [first_name, last_name, identity_card, address_city, address_street, address_number, date_of_birth, telephone, mobile_phone, patientId];
+  
+  sqlConnect(query, values)
+    .then(() => {
+      res.status(200).send("Patient updated successfully");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
+router.delete("/:id", function (req, res) {
+  const patientId = req.params.id;
+  
+  const query = `DELETE FROM ${dbName}.patients WHERE id = ?`;
+  
+  sqlConnect(query, [patientId])
+    .then(() => {
+      res.status(200).send("Patient deleted successfully");
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("An error occurred");
+    });
+});
+
 module.exports = router;
