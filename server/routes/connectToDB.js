@@ -34,7 +34,7 @@ function sqlConnect(query, values = []) {
             }
             console.log("MySQL connection closed");
           });
-  
+          console.log("results: "+results);
           resolve(results);
         });
       });

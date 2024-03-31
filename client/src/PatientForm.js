@@ -10,7 +10,7 @@ function PatientForm({ onSubmit, onClose }) {
     addressCity: "",
     addressStreet: "",
     addressNumber: "",
-    dateOfBirth: new Date(),
+    dateOfBirth: null,
     telephone: "",
     mobilePhone: ""
   });
@@ -32,6 +32,13 @@ function PatientForm({ onSubmit, onClose }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    // Check if all required fields are filled
+    for (const field of formFields) {
+        if (!formData[field.name]) {
+            console.error(`${field.label} is required`);
+        return; // Prevent form submission if any required field is missing
+    }
+  }
     onSubmit(formData);
   };
 
@@ -54,7 +61,7 @@ function PatientForm({ onSubmit, onClose }) {
         {formFields.map((field) => (
           <div key={field.name}>
             <label>
-              {field.label}: <br />
+              {field.label}: 
               {field.name === "dateOfBirth" ? (
                 <DatePicker
                   selected={formData[field.name]}
