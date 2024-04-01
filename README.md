@@ -1,17 +1,23 @@
 # Hadassim_Ex1 - 
 
-Installs for client:
+**Installs for client:**
+
 npm install react react-dom
 
-Installs for server:
+**Installs for server:**
+
 download and install Node.js from the official website: https://nodejs.org/
+
 npm install express
+
 npm install cors
+
 npm install body-parser
 
 "start": "node index.js"
 
-Installs for DB:
+**Installs for DB:**
+
 npm install mysql2 
 
 
