@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import './Patients.css';
 
 function PatientForm({ onSubmit, onClose }) {
   const [formData, setFormData] = useState({
@@ -56,10 +57,10 @@ function PatientForm({ onSubmit, onClose }) {
   ];
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="container">
+      <form className="form" onSubmit={handleSubmit}>
         {formFields.map((field) => (
-          <div key={field.name}>
+          <div key={field.name} className="form-row">
             <label>
               {field.label}: 
               {field.name === "dateOfBirth" ? (
@@ -73,14 +74,14 @@ function PatientForm({ onSubmit, onClose }) {
                   name={field.name}
                   value={formData[field.name]}
                   onChange={handleChange}
+                  className="form-input"
                 />
               )}
             </label>
-            <br />
           </div>
         ))}
-        <button type="submit">Submit</button>
-        <button type="button" onClick={onClose}>Close</button>
+        <button className="btn" type="submit">Submit</button>
+        <button className="btn" type="button" onClick={onClose}>Close</button>
       </form>
     </div>
   );

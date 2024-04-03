@@ -1,90 +1,8 @@
-// import { useState, useEffect } from "react";
-// import Modal from "./Modal";
-// import PatientForm from "./PatientForm";
-
-// function Patients({ onSelect }) {
-//   // State to store the list of patients
-//   const [patients, setPatients] = useState([]);
-//   const [showModal, setShowModal] = useState(false);
-
-//   // Function to fetch patients from the backend API
-//   const fetchPatients = async () => {
-//     try {
-//       console.log("Fetching patients...");
-//       const response = await fetch("http://localhost:3000/patients");
-//       if (!response.ok) {
-//         throw new Error("Failed to fetch patients");
-//       }
-//       const data = await response.json();
-//       console.log("Fetched patients data:", data);
-      
-//       localStorage.setItem("patients", JSON.stringify(data));
-//       setPatients(data);
-//     } catch (error) {
-//       console.error("Fetch patients error:", error);
-//     }
-//   };
-
-//   // Function to handle adding a new patient
-//   const handleAddPatient = async (patientData) => {
-//     console.log(patientData);
-//     const url = "http://localhost:3000/patients/newPatient";
-//     const req = {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(patientData),
-//     };
-
-//     await fetch(url, req)
-//         .then((res) => {
-//             console.log(res);
-//             fetchPatients();
-//             setShowModal(false);
-//         })
-//         .catch((error) => {
-//             console.log(error);
-//         });
-//   };
-
-//   // Effect to fetch patients data when the component mounts
-//   useEffect(() => {
-//     // Check if patient data is available in local storage
-//     const storedPatients = localStorage.getItem("patients");
-//     if (storedPatients) {
-//       setPatients(JSON.parse(storedPatients));
-//     } else {
-//       fetchPatients();
-//     }
-//   }, []); // Empty dependency array ensures the effect runs only once on mount
-
-//   return (
-//     <div>
-//       <h2>Patients List</h2>
-//       <button onClick={() => setShowModal(true)}>Add Patient</button>
-//       <ul>
-//         {patients.map((patient) => (
-//           <li key={patient.id} onClick={() => onSelect(patient)}>
-//             {patient.identity_card} - {patient.first_name} - {patient.last_name}
-//           </li>
-//         ))}
-//       </ul>
-//       {showModal && (
-//         <Modal>
-//           <PatientForm onSubmit={handleAddPatient} onClose={() => setShowModal(false)} />
-//         </Modal>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default Patients;
-
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import PatientForm from "./PatientForm";
 import PatientDetails from "./PatientDetails"; 
+import styles from "./Patients.css";
 
 function Patients({ onSelect }) {
   const [patients, setPatients] = useState([]);
@@ -172,33 +90,60 @@ function Patients({ onSelect }) {
   };
 
   return (
-    <div>
-      <h2>Patients List</h2>
-      <button onClick={() => setShowModal(true)}>Add Patient</button>
-      <ul>
-        {patients.map((patient) => (
-          <li key={patient.id} onClick={() => handlePatientSelect(patient)}>
-            {patient.identity_card} - {patient.first_name} - {patient.last_name}
-          </li>
-        ))}
-      </ul>
-      {selectedPatient && (
-        <div>
-          <PatientDetails patient={patientDetails} />
-          <button onClick={() => setShowModal(true)}>Update Patient</button>
-          <button onClick={handleDeletePatient}>Delete Patient</button>
+    <section className={styles.section}>
+      <div className={styles.container}>
+        <div className={styles.subContainer}>
+          <h5>Patients List</h5>
+          <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={() => setShowModal(true) }>Add Patient</button>
+          <table>
+            <thead>
+              <tr>
+                <td>
+                <h3 style={{ fontWeight: 'bold',color:'rgb(105,105,105)' }}>
+                Identity card
+                </h3>
+                  </td>
+                <td>
+                <h3 style={{ fontWeight: 'bold',color:'rgb(105,105,105)' }}>
+                First name
+                </h3>
+                 </td>
+                <td>
+                <h3 style={{ fontWeight: 'bold',color:'rgb(105,105,105)' }}>
+                Last name
+                </h3>
+                </td>
+            </tr>
+            </thead>
+            <tbody>
+            {patients.map((patient) => (
+              <tr key={patient.id} onClick={() => handlePatientSelect(patient)}>
+                <td>{patient.identity_card}</td>
+                <td>{patient.first_name}</td>
+                <td>{patient.last_name}</td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+          {selectedPatient && (
+            <div>
+              <PatientDetails patient={patientDetails} />
+              <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={() => setShowModal(true)}>Update Patient</button>
+              <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={handleDeletePatient}>Delete Patient</button>
+            </div>
+          )}
+          {showModal && (
+            <Modal>
+              <PatientForm
+                patient={selectedPatient}
+                onSubmit={handleUpdatePatient}
+                onClose={() => setShowModal(false)}
+              />
+            </Modal>
+          )}
         </div>
-      )}
-      {showModal && (
-        <Modal>
-          <PatientForm
-            patient={selectedPatient}
-            onSubmit={handleUpdatePatient}
-            onClose={() => setShowModal(false)}
-          />
-        </Modal>
-      )}
-    </div>
+      </div>
+    </section>
   );
 }
 
