@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import './Patients.css';
+import './Patients.module.css';
 
 function PatientForm({ onSubmit, onClose }) {
   const [formData, setFormData] = useState({
@@ -25,9 +25,11 @@ function PatientForm({ onSubmit, onClose }) {
   };
 
   const handleDateChange = (date) => {
+    let bDate = new Date(date);
+    const formattedDate = bDate.toISOString().split('T')[0];
     setFormData((prevFormData) => ({
       ...prevFormData,
-      dateOfBirth: date
+      dateOfBirth: formattedDate
     }));
   };
 

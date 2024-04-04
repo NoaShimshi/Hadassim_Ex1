@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
+import { Link} from 'react-router-dom';
 import Modal from "./Modal";
 import PatientForm from "./PatientForm";
-import PatientDetails from "./PatientDetails"; 
-import styles from "./Patients.css";
+import styles from "./Patients.module.css";
 
 function Patients({ onSelect }) {
   const [patients, setPatients] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [patientDetails, setPatientDetails] = useState(null);
 
   const fetchPatients = async () => {
     try {
@@ -33,60 +31,27 @@ function Patients({ onSelect }) {
     }
   }, []);
 
-  const fetchPatientDetails = async (patientId) => {
-    try {
-      const response = await fetch(`http://localhost:3000/patients/${patientId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch patient details");
-      }
-      const data = await response.json();
-      setPatientDetails(data);
-    } catch (error) {
-      console.error("Fetch patient details error:", error);
-    }
+  const handlePatientSelect = (patient) => {
+    localStorage.setItem("currentPatient", patient.id);
   };
 
-  const handleUpdatePatient = async (updatedData) => {
+  const handleAddPatient = async (newPatientData) => {
     try {
-      const url = `http://localhost:3000/patients/${selectedPatient.id}`;
-      const req = {
-        method: "PUT",
+      const response = await fetch("http://localhost:3000/patients/newPatient", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedData),
-      };
-      const response = await fetch(url, req);
+        body: JSON.stringify(newPatientData),
+      });
       if (!response.ok) {
-        throw new Error("Failed to update patient");
+        throw new Error("Failed to add new patient");
       }
       fetchPatients();
+      setShowModal(false);
     } catch (error) {
-      console.error("Update patient error:", error);
+      console.error("Add patient error:", error);
     }
-  };
-
-  const handleDeletePatient = async () => {
-    try {
-      const url = `http://localhost:3000/patients/${selectedPatient.id}`;
-      const req = {
-        method: "DELETE",
-      };
-      const response = await fetch(url, req);
-      if (!response.ok) {
-        throw new Error("Failed to delete patient");
-      }
-      fetchPatients();
-      setSelectedPatient(null);
-      setPatientDetails(null);
-    } catch (error) {
-      console.error("Delete patient error:", error);
-    }
-  };
-
-  const handlePatientSelect = (patient) => {
-    setSelectedPatient(patient);
-    fetchPatientDetails(patient.id);
   };
 
   return (
@@ -118,25 +83,28 @@ function Patients({ onSelect }) {
             <tbody>
             {patients.map((patient) => (
               <tr key={patient.id} onClick={() => handlePatientSelect(patient)}>
-                <td>{patient.identity_card}</td>
+                <td>
+                  <Link to={`/patients/${patient.id}`} onClick={() => handlePatientSelect(patient)}>{patient.identity_card}</Link>
+                </td>
                 <td>{patient.first_name}</td>
                 <td>{patient.last_name}</td>
               </tr>
             ))}
             </tbody>
           </table>
-          {selectedPatient && (
+          {/* {selectedPatient && (
             <div>
               <PatientDetails patient={patientDetails} />
               <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={() => setShowModal(true)}>Update Patient</button>
               <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={handleDeletePatient}>Delete Patient</button>
             </div>
-          )}
+          )} */}
           {showModal && (
             <Modal>
               <PatientForm
-                patient={selectedPatient}
-                onSubmit={handleUpdatePatient}
+                // patient={selectedPatient}
+                // onSubmit={handleUpdatePatient}
+                onSubmit={handleAddPatient}
                 onClose={() => setShowModal(false)}
               />
             </Modal>
