@@ -113,28 +113,6 @@ router.get('/corona/patient/:id', async (req, res) => {
     });
 });
 
-// router.put('/corona/patient/:id', async (req, res) => {
-//     const patientId = req.params.id;
-//     const { illnessDate, recoveryDate } = req.body;
-//     try {
-//         let query;
-//         if (illnessDate && recoveryDate) {
-//             query = `UPDATE ${dbName}.corona_patients SET illness_date = '${illnessDate}', recovery_date = '${recoveryDate}' WHERE patient_id = ${patientId}`;
-//         } else if (recoveryDate) {
-//             query = `UPDATE ${dbName}.corona_patients SET recovery_date = '${recoveryDate}' WHERE patient_id = ${patientId}`;
-//         }
-//         if (query) {
-//             await sqlConnect(query);
-//             res.status(200).json({ message: 'Corona information updated successfully' });
-//         } else {
-//             res.status(400).json({ message: 'Invalid request parameters' });
-//         }
-//     } catch (error) {
-//         console.error('Update corona information error:', error);
-//         res.status(500).json({ message: 'An error occurred while updating corona information' });
-//     }
-// });
-
 // Update illnessDate
 router.put('/corona/patient/:id/illness', async (req, res) => {
   const patientId = req.params.id;

@@ -18,7 +18,17 @@ npm install body-parser
 
 **Installs for DB:**
 
-npm install mysql2 
+npm install mysql2
+
+![alt text](image-6.png)
+
+![alt text](image-5.png)
+
+![alt text](image-7.png)
+
+![alt text](image-4.png)
+
+![alt text](image-3.png)
 
 ![alt text](image.png)
 
