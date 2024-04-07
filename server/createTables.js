@@ -15,6 +15,10 @@ const con = mysql.createConnection({
     var corona_patients_table = "CREATE TABLE corona_patients (id INT AUTO_INCREMENT PRIMARY KEY, patient_id INT, illness_date DATE, recovery_date DATE, FOREIGN KEY (patient_id) REFERENCES patients(id))"
     var vaccine_doses_table = "CREATE TABLE vaccine_doses (id INT AUTO_INCREMENT PRIMARY KEY, dose_name VARCHAR(255))";
     var dose_patient_vaccine_table = "CREATE TABLE dose_patient_vaccine (id INT AUTO_INCREMENT PRIMARY KEY, patient_id INT, vaccine_dose_id INT, FOREIGN KEY (patient_id) REFERENCES patients(id), FOREIGN KEY (vaccine_dose_id) REFERENCES vaccine_doses(id))"
+    // ALTER TABLE dose_patient_vaccine
+    // ADD COLUMN vaccination_date DATE,
+    // ADD COLUMN vaccine_manufacturer_id INT,
+    // ADD FOREIGN KEY (vaccine_manufacturer_id) REFERENCES vaccinations(id);
 
     con.query(patients_table, function (err, result) {
       if (err) throw err;

@@ -59,7 +59,7 @@ function Patients({ onSelect }) {
       <div className={styles.container}>
         <div className={styles.subContainer}>
           <h5>Patients List</h5>
-          <button style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={() => setShowModal(true) }>Add Patient</button>
+          <button className={styles.btn} style={{ display: 'block', margin: 'auto', marginTop: '10px' }} onClick={() => setShowModal(true) }>Add Patient</button>
           <table>
             <thead>
               <tr>
