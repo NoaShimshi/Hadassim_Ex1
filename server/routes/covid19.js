@@ -9,7 +9,7 @@ router.get("/vaccineDoses", function (req, res) {
 
     sqlConnect(query)
       .then((results) => {
-        console.log(results);
+        // console.log(results);
         res.status(200).json(results); // Sending fetched vaccine doses as a JSON response
       })
       .catch((err) => {
@@ -17,26 +17,6 @@ router.get("/vaccineDoses", function (req, res) {
         res.status(500).send("An error occurred");
       });
 });
-
-// router.get("/patient/:id/vaccineDoses", function (req, res) {
-//     const patientId = req.params.id;
-//     console.log(`Fetching vaccine doses for patient ${patientId}`);
-
-//     const query = `SELECT vd.id, vd.dose_name, IFNULL(dpv.id, 0) AS vaccinated
-//                    FROM ${dbName}.vaccine_doses vd
-//                    LEFT JOIN ${dbName}.dose_patient_vaccine dpv
-//                    ON vd.id = dpv.vaccine_dose_id AND dpv.patient_id = ${patientId}`;
-
-//     sqlConnect(query)
-//       .then((results) => {
-//          console.log(results);
-//          res.status(200).json(results);
-//       })
-//       .catch((err) => {
-//          console.error(err);
-//          res.status(500).send("An error occurred");
-//       });
-// });
 
 router.get("/patient/:id/vaccineDoses", function (req, res) {
     const patientId = req.params.id;
@@ -103,7 +83,6 @@ router.get("/vaccineManufacturers/:id", function (req, res) {
 
     sqlConnect(query)
       .then((results) => {
-         console.log(results);
          if (results.length === 0) {
             res.status(404).send("Vaccine manufacturer not found");
          } else {
@@ -114,6 +93,106 @@ router.get("/vaccineManufacturers/:id", function (req, res) {
          console.error(err);
          res.status(500).send("An error occurred");
       });
+});
+
+router.get('/corona/patient/:id', async (req, res) => {
+    const patientId = req.params.id;
+    const query = `SELECT * FROM ${dbName}.corona_patients WHERE patient_id = ${patientId}`;
+
+    sqlConnect(query)
+    .then((results) => {
+       if (results.length === 0) {
+          res.status(404).send("Patient corona information not found");
+       } else {
+          res.status(200).json(results[0]);
+       }
+    })
+    .catch((err) => {
+       console.error(err);
+       res.status(500).send("An error occurred");
+    });
+});
+
+// router.put('/corona/patient/:id', async (req, res) => {
+//     const patientId = req.params.id;
+//     const { illnessDate, recoveryDate } = req.body;
+//     try {
+//         let query;
+//         if (illnessDate && recoveryDate) {
+//             query = `UPDATE ${dbName}.corona_patients SET illness_date = '${illnessDate}', recovery_date = '${recoveryDate}' WHERE patient_id = ${patientId}`;
+//         } else if (recoveryDate) {
+//             query = `UPDATE ${dbName}.corona_patients SET recovery_date = '${recoveryDate}' WHERE patient_id = ${patientId}`;
+//         }
+//         if (query) {
+//             await sqlConnect(query);
+//             res.status(200).json({ message: 'Corona information updated successfully' });
+//         } else {
+//             res.status(400).json({ message: 'Invalid request parameters' });
+//         }
+//     } catch (error) {
+//         console.error('Update corona information error:', error);
+//         res.status(500).json({ message: 'An error occurred while updating corona information' });
+//     }
+// });
+
+// Update illnessDate
+router.put('/corona/patient/:id/illness', async (req, res) => {
+  const patientId = req.params.id;
+  const { illnessDate } = req.body;
+  try {
+      if (illnessDate) {
+          // Check if a record exists for the patient
+          let query = `SELECT * FROM ${dbName}.corona_patients WHERE patient_id = ${patientId}`;
+          let result = await sqlConnect(query);
+          
+          if (result.length === 0) {
+              // If no record exists, insert a new record
+              query = `INSERT INTO ${dbName}.corona_patients (patient_id, illness_date) VALUES (${patientId}, '${illnessDate}')`;
+              await sqlConnect(query);
+          } else {
+              // Update existing record
+              query = `UPDATE ${dbName}.corona_patients SET illness_date = '${illnessDate}' WHERE patient_id = ${patientId}`;
+              await sqlConnect(query);
+          }
+
+          res.status(200).json({ message: 'Illness date updated successfully' });
+      } else {
+          res.status(400).json({ message: 'Invalid request parameters' });
+      }
+  } catch (error) {
+      console.error('Update illness date error:', error);
+      res.status(500).json({ message: 'An error occurred while updating illness date' });
+  }
+});
+
+// Update recoveryDate
+router.put('/corona/patient/:id/recovery', async (req, res) => {
+  const patientId = req.params.id;
+  const { recoveryDate } = req.body;
+  try {
+      if (recoveryDate) {
+          // Check if a record exists for the patient
+          let query = `SELECT * FROM ${dbName}.corona_patients WHERE patient_id = ${patientId}`;
+          let result = await sqlConnect(query);
+          
+          if (result.length === 0) {
+              // If no record exists, insert a new record
+              query = `INSERT INTO ${dbName}.corona_patients (patient_id, recovery_date) VALUES (${patientId}, '${recoveryDate}')`;
+              await sqlConnect(query);
+          } else {
+              // Update existing record
+              query = `UPDATE ${dbName}.corona_patients SET recovery_date = '${recoveryDate}' WHERE patient_id = ${patientId}`;
+              await sqlConnect(query);
+          }
+
+          res.status(200).json({ message: 'Recovery date updated successfully' });
+      } else {
+          res.status(400).json({ message: 'Invalid request parameters' });
+      }
+  } catch (error) {
+      console.error('Update recovery date error:', error);
+      res.status(500).json({ message: 'An error occurred while updating recovery date' });
+  }
 });
 
 module.exports = router;

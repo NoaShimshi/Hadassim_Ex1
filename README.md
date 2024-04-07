@@ -20,6 +20,11 @@ npm install body-parser
 
 npm install mysql2 
 
+![alt text](image.png)
+
+![alt text](image-2.png)
+
+![alt text](image-1.png)
 
 # Hadassim_Ex1 - Twitter towers
 https://colab.research.google.com/drive/1h4aMEISMEsshKV6SyHlbiTs4WvzSxPXU?usp=sharing

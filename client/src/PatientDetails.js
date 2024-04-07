@@ -6,13 +6,15 @@ function PatientDetails({ patient }) {
     const [patientDetails, setPatientDetails] = useState(null);
     const [activeTab, setActiveTab] = useState("INFO"); 
     const [isEdit, setIsEdit] = useState(0);
-    const [covidInfo, setCovidInfo] = useState({});
     const [vaccineDoses, setVaccineDoses] = useState([]);
     const [receivedDoses, setReceivedDoses] = useState([]);
     const [vaccinationDate, setVaccinationDate] = useState('');
     const [vaccineManufacturerId, setVaccineManufacturerId] = useState('');
     const [vaccineManufacturers, setVaccineManufacturers] = useState([]);
     const [isVaccinated, setIsVaccinated] = useState(false);
+    const [isSick, setIsSick] = useState(false);
+    const [illnessDate, setIllnessDate] = useState('');
+    const [recoveryDate, setRecoveryDate] = useState('');
 
     const fetchPatientDetails = async (patientId) => {
       try {
@@ -27,11 +29,6 @@ function PatientDetails({ patient }) {
       }
     };
 
-    const fetchCovidInfo = async (patientId) => {
-      // Fetch COVID-19 information for the patient from the server
-      // Update the state with the fetched data
-    };
-  
     const fetchVaccineDoses = async () => {
       try {
         const response = await fetch("http://localhost:3000/covid19/vaccineDoses");
@@ -98,14 +95,43 @@ function PatientDetails({ patient }) {
       }
     };
 
+    const fetchCoronaInfo = async (patientId) => {
+      try {
+          const response = await fetch(`http://localhost:3000/covid19/corona/patient/${patientId}`);
+          
+          console.log('Response status:', response.status);
+          
+          if (!response.ok) {
+              // If response status is 404, update state variables to indicate the patient has not contracted the coronavirus
+              if (response.status === 404) {
+                  setIsSick(false);
+                  setIllnessDate(null);
+                  setRecoveryDate(null);
+              } else {
+                  throw new Error('Failed to fetch corona information');
+              }
+          } else {
+              const data = await response.json();
+              // Update the state variables with the fetched corona information
+              setIsSick(data && data.illness_date !== null && data.recovery_date === null);
+              setIllnessDate(data.illness_date);
+              setRecoveryDate(data.recovery_date);
+          }
+      } catch (error) {
+          console.error('Fetch corona information error:', error);
+          // Handle the error here
+      }
+  };
+    
+
     useEffect(() => {
       const currentPatientId = localStorage.getItem("currentPatient");
       if (currentPatientId) {
         fetchPatientDetails(currentPatientId);
-        fetchCovidInfo(currentPatientId);
         fetchVaccineDoses();
         fetchReceivedDoses(currentPatientId);
         fetchVaccineManufacturers();
+        fetchCoronaInfo(currentPatientId);
       }
     }, []);
 
@@ -129,10 +155,6 @@ function PatientDetails({ patient }) {
         }
 
         fetchReceivedDoses(patientDetails.id);
-        // const updatedReceivedDoses = [...receivedDoses, doseId];
-        // setReceivedDoses(updatedReceivedDoses);
-
-        // Set isVaccinated to true
         setIsVaccinated(true);
       } catch (error) {
           console.error('Vaccinate patient error:', error);
@@ -197,6 +219,49 @@ function PatientDetails({ patient }) {
       console.error("Delete patient error:", error);
     }
   };
+
+  const handleUpdateCoronaInfo = async () => {
+    try {
+        // Format the illnessDate and recoveryDate
+        const formattedIllnessDate = illnessDate ? new Date(illnessDate).toISOString().split('T')[0] : null;
+        const formattedRecoveryDate = recoveryDate ? new Date(recoveryDate).toISOString().split('T')[0] : null;
+
+        // Check if either illnessDate or recoveryDate is updated
+        if (formattedIllnessDate && formattedRecoveryDate) {
+            // Send two separate requests if both dates are updated
+            await sendUpdateRequest(`http://localhost:3000/covid19/corona/patient/${patientDetails.id}/illness`, { illnessDate: formattedIllnessDate });
+            await sendUpdateRequest(`http://localhost:3000/covid19/corona/patient/${patientDetails.id}/recovery`, { recoveryDate: formattedRecoveryDate });
+        } else if (formattedIllnessDate) {
+          console.log("formattedIllnessDate: "+formattedIllnessDate)
+            // Send request to update illnessDate
+            await sendUpdateRequest(`http://localhost:3000/covid19/corona/patient/${patientDetails.id}/illness`, { illnessDate: formattedIllnessDate });
+        } else if (formattedRecoveryDate) {
+            // Send request to update recoveryDate
+            await sendUpdateRequest(`http://localhost:3000/covid19/corona/patient/${patientDetails.id}/recovery`, { recoveryDate: formattedRecoveryDate });
+        }
+    } catch (error) {
+        console.error('Update corona information error:', error);
+    }
+};
+
+const sendUpdateRequest = async (url, data) => {
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update corona information');
+    }
+
+    // Fetch updated corona information after successful update
+    fetchCoronaInfo(patientDetails.id);
+};
+
+
 
   if (!patientDetails) {
     return <div>No patient selected</div>;
@@ -283,6 +348,66 @@ function PatientDetails({ patient }) {
 const renderCovidTab = () => (
   <>
     <div className={styles.tabContent}> 
+    <h5>Corona Disease Information</h5>
+    <table>
+      <thead>
+        <tr>
+          <td><h3 style={{ fontWeight: 'bold', color: 'rgb(105,105,105)' }}>Status</h3></td>
+          <td><h3 style={{ fontWeight: 'bold', color: 'rgb(105,105,105)' }}>Illness Date</h3></td>
+          <td><h3 style={{ fontWeight: 'bold', color: 'rgb(105,105,105)' }}>Recovery Date</h3></td>
+         <td><h3 style={{ fontWeight: 'bold', color: 'rgb(105,105,105)' }}>Action</h3></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            {isSick ? (
+              <p>Currently Sick</p>
+            ) : recoveryDate !== null ? (
+              <p>Already Recovered</p>
+            ) : (
+              <p>Not Infected</p>
+            )}
+          </td>
+          <td>
+            {isSick && illnessDate  !== null ? (
+              <p>{new Date(illnessDate).toLocaleDateString('en-GB')}</p>              
+            ) : !isSick && illnessDate  === null ? (
+              <input
+              type="date"
+              value={''}
+              onChange={(e) => setIllnessDate(e.target.value)}
+              />
+            ): !isSick && illnessDate  !== null ? (
+              <p>{new Date(illnessDate).toLocaleDateString('en-GB')}</p> 
+            ): null}
+          </td>
+          <td>
+            {(!isSick &&  illnessDate  === null) || (isSick && illnessDate  === null) ? (
+              <p>Unable</p>
+            ) : (
+              isSick && illnessDate !== null && recoveryDate === null ? (
+              <input
+              type="date"
+              value={''}
+              onChange={(e) => setRecoveryDate(e.target.value)}
+            />
+              ): !isSick && illnessDate !== null && recoveryDate !== null ?(
+                <p>{new Date(recoveryDate).toLocaleDateString('en-GB')}</p> 
+              ):null
+            )}
+          </td>
+          <td>
+            {!isSick && illnessDate !== null && recoveryDate !== null ? (
+              <p>Unable</p>
+            ) : (
+              <button onClick={handleUpdateCoronaInfo}>Update</button>
+            )}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+            
       <h5>Vaccine Doses</h5>
       <table>
         <thead>
@@ -319,9 +444,9 @@ const renderCovidTab = () => (
                 )}
               </td>               
               <td>
-                {!dose.vaccinated && (
+                {!dose.vaccinated ? (
                   <button onClick={() => handleVaccinate(dose.id)}>Vaccinate</button>
-                )}
+                ) : "Unable"}
               </td>
             </tr>
           ))}

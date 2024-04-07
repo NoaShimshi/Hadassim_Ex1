@@ -21,6 +21,7 @@ function sqlConnect(query, values = []) {
         console.log("Connected to MySQL server");
   
         console.log("Executing query:", connection.format(query, values));
+        
         connection.query(query, values, (err, results) => {
           if (err) {
             console.error("Error executing query: " + err.code);

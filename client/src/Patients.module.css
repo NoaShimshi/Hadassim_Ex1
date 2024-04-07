@@ -71,6 +71,8 @@ body {
     padding: 20px;
     background-color: #f9f9f9;
     width: calc(100% - 10px); /* Adjust width to accommodate borders and margins */
+    height: 280px; /* Set a fixed height for the tab content */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 thead, tbody, tr, td {
